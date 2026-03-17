@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix=Prefix, intents=discord.Intents.all())
 bot.remove_command('help')
 
 async def setupdatabase():
-    async with aiosqlite.connect("session.db") as sdb:
+    async with aiosqlite.connect("database/session.db") as sdb:
        await sdb.execute("CREATE TABLE IF NOT EXISTS blacklist ( g INTEGER, u INTEGER, PRIMARY KEY (g,u) )")
        await sdb.commit()
 
