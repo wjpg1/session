@@ -17,7 +17,7 @@ bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 bot.remove_command('help')
 
 async def setupdatabase():
-    async with aiosqlite.connect("session.db") as sdb:
+    async with aiosqlite.connect("db/session.db") as sdb:
        await sdb.execute("CREATE TABLE IF NOT EXISTS blacklist ( g INTEGER, u INTEGER, PRIMARY KEY (g,u) )")
        await sdb.commit()
 
@@ -55,7 +55,7 @@ def blacklisted():
     return commands.check(predicate)
 
 async def _blacklistedusers(guild: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('db/session.db') as sdb:
        c = await sdb.execute("SELECT u FROM blacklist WHERE g = ?", (guild,))
        rs = await c.fetchall()
        if not rs:
@@ -63,18 +63,18 @@ async def _blacklistedusers(guild: int):
        return '\n'.join(str(r[0]) for r in rs)
 
 async def _checkblacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('db/session.db') as sdb:
        cursor = await sdb.execute("SELECT u FROM blacklist WHERE g = ? AND u = ?", (guild, user))
        row = await cursor.fetchone()
        return row is not None
 
 async def _blacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('db/session.db') as sdb:
        c = await sdb.execute("INSERT OR IGNORE INTO blacklist (g, u) VALUES (?,?)", (guild, user))
        await sdb.commit()
 
 async def _unblacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('db/session.db') as sdb:
        c = await sdb.execute("DELETE FROM blacklist WHERE g = ? AND u = ?", (guild, user))
        await sdb.commit()
 
