@@ -5,7 +5,7 @@ from datetime import datetime
 from .methods import Recover, _unblacklist, _blacklist, _blacklistedusers, blacklisted, _checkblacklist
 from discord.ext import commands
 from discord.errors import Forbidden
-from .config import Prefix
+from config import Prefix
 from typing import Final
 
 prefix: Final[str] = Prefix
@@ -13,7 +13,7 @@ prefix: Final[str] = Prefix
 class Session(commands.Cog):
     def __init__(self, bot):
        self.bot = bot
-    @commands.group(name="cleanup", invoke_without_subcommands=True)
+    @commands.command(name="cleanup", aliases=['cln', 'clean', 'wipe']))
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -23,7 +23,7 @@ class Session(commands.Cog):
           await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
        except Forbidden:
           await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
-    @cleanup.command(name="deletemojis", aliases=['de'])
+    @commands.command(name="deletemojis", aliases=['de'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -32,7 +32,7 @@ class Session(commands.Cog):
           em = [emoji.delete() for emoji in ctx.guild.emojis]
           await asyncio.gather(*em, return_exceptions=True)
           await ctx.message.add_reaction("👍")
-    @cleanup.command(name="deletestickers", aliases=['ds'])
+    @commands.command(name="deletestickers", aliases=['ds'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -41,16 +41,16 @@ class Session(commands.Cog):
           st = [sticker.delete() for sticker in ctx.guild.stickers]
           await asyncio.gather(*st, return_exceptions=True)
           await ctx.message.add_reaction("👍")
-    @cleanup.command(name="deleteroles", aliases=['dr'])
+    @commands.command(name="deleteroles", aliases=['dr'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
     @blacklisted()
     async def delete_roles(self, ctx: commands.Context):
-       rl = [role.delete() for role in ctx.guild.roles if not role > ctx.guild.me.top_role and role.is_default()]
+       rl = [role.delete() for role in ctx.guild.roles if role < ctx.guild.me.top_role and not role.is_default()]
        await asyncio.gather(*rl, return_exceptions=True)
        await ctx.message.add_reaction("👍")
-    @cleanup.command(name='deletewebhooks', aliases=['dw', 'delweb'])
+    @commands.command(name='deletewebhooks', aliases=['dw', 'delweb'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -60,23 +60,24 @@ class Session(commands.Cog):
        wb = [webhook.delete() for webhook in webhooks]
        await asyncio.gather(*wb, return_exceptions=True)
        await ctx.message.add_reaction('👍')
-    @cleanup.command(name="purge", aliases=['pg','clear'])
+    @commands.command(name="purge", aliases=['pg','clear'])
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     @commands.cooldown(1,5, commands.BucketType.user)
     @blacklisted()
     async def purge(self, ctx: commands.Context, amount: int = 10):
-       await ctx.channel.purge(limit=amount + 1)
-    @cleanup.command(name="clearnicks", aliases=['cn'])
+        amount = min(amount, 100)
+        await ctx.channel.purge(limit=amount + 1)
+    @commands.command(name="clearnicks", aliases=['cn'])
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     @commands.cooldown(1,5, commands.BucketType.user)
     @blacklisted()
     async def clearnicknames(self, ctx: commands.Context):
-       cn = [member.edit(nick=None) for member in ctx.guild.members if not member.top_role > ctx.guild.me.top_role]
+       cn = [member.edit(nick=None) for member in ctx.guild.members if member.top_role < ctx.guild.me.top_role]
        await asyncio.gather(*cn, return_exceptions=True)
        await ctx.message.add_reaction("👍")
-    @commands.group(name="blacklisting", aliases=['bl'])
+    @commands.command(ame="blacklist", aliases=['bl'])
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
     @commands.cooldown(1,2, commands.BucketType.user)
@@ -88,8 +89,8 @@ class Session(commands.Cog):
        if b:
           return await ctx.send(view = Recover(f"{ctx.author.mention}: Idiot, {member.mention} is already blacklisted!"))
        await _blacklist(ctx.guild.id, member.id)
-       await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully blacklisted in {ctx.guild.name}"))
-    @blacklist.command(name="unblacklist", aliases=['remb','unblack'])
+       await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully blacklisted in {ctx.guild.name}\nModerator: {ctx.author.mention}\nReason: {reason}"))
+    @commands.command(name="unblacklist", aliases=['remb','unblack'])
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
     @commands.cooldown(1,2, commands.BucketType.user)
@@ -98,31 +99,31 @@ class Session(commands.Cog):
        b = await _checkblacklist(ctx.guild.id, member.id)
        if b:
           await _unblacklist(ctx.guild.id, member.id)
-          await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully unblacklisted."))
+          await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully unblacklisted.\nModerator: {ctx.author.mention}\nReason: {reason}"))
        else:
           await ctx.send(view = Recover(f"{ctx.author.mention}: Idiot! {member.mention} is not blacklisted in this server."))
-    @commands.group(name="information", invoke_without_subcommands=True)
+    @commands.command(name="information", aliases=['info'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def information(self, ctx: commands.Context):
        await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\nAll the informations about this bot: \nName: {self.bot.user.name}, Username: {self.bot.user}\nPrefix: {prefix}, Do {prefix}help to know about all the available commands."))
-    @information.command(name='serverinformation', aliases=['si'])
+    @commands.command(name='serverinformation', aliases=['si', 'serverinfo'])
     @commands.cooldown(1,2, commands.BucketType.user)
-    async def serverinfo(self, ctx: commands.Context):
+    async def serverinformation(self, ctx: commands.Context):
        await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
-    @information.command(name="blacklisted", aliases=['bls'])
+    @commands.command(name="blacklisted", aliases=['bls', 'utrb'])
     @commands.cooldown(1,2, commands.BucketType.user)
-    async def blacklisted(self, ctx: commands.Context):
+    async def userthatarebacklisted(self, ctx: commands.Context):
        information = await _blacklistedusers(ctx.guild.id)
        await ctx.send(view = Recover(information))
-    @information.command(name="botinfo", aliases=['info', 'bi'])
+    @commands.command(name="botinfo", aliases=['info', 'bi'])
     async def bot_info(self, ctx: commands.Context):
        await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session](invitelink)\nName: {self.bot.user.name}, Username: {self.bot.user}\nPrefix: {prefix}, Do {prefix}help to know all the available commands."))
-    @information.command(name="help", aliases=['hlp'])
+    @commands.command(name="help", aliases=['hlp'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def help(self, ctx: commands.Context):
-       commands = ', '.join(command.name for command in self.bot.commands)
-       await ctx.send(view = Recover(commands))
-    @information.command(name="ping", aliases=['png'])
+       cmds = ', '.join(command.name for command in self.bot.commands)
+       await ctx.send(view = Recover(cmds))
+    @commands.command(name="ping", aliases=['png'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def ping(self, ctx: commands.Context):
        await ctx.send(view = Recover(f"{round(self.bot.latency * 1000)}ms"))
