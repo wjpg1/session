@@ -2,6 +2,7 @@ import aiosqlite
 import discord
 import asyncio
 import os
+
 from datetime import datetime
 from discord.errors import Forbidden
 from discord.ext import commands 
@@ -39,7 +40,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CommandOnCooldown):
        await ctx.send(view = Recover(f"{ctx.author.mention}: Slow Down! You've to wait {error.retry_after:.2f}(s) before running this, again."), delete_after=5)
     else:
-        await ctx.send(view = Recover(f"{ctx.author.mention}: An error occurred, {error}")
+        await ctx.send(view = Recover(f"{ctx.author.mention}: An unexpected error occurred, {error}")
 
 def blacklisted():
     async def predicate(ctx):
@@ -80,11 +81,16 @@ async def _unblacklist(guild: int, user: int):
 class Recover(discord.ui.LayoutView):
     def __init__(self, message: str, default_buttons: bool = True):
        super().__init__()
-       container = discord.ui.Container(discord.ui.TextDisplay(message), sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large, footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))))
+       container = discord.ui.Container(discord.ui.TextDisplay(message)
+       sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
+       footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))
+       container.add_item(sep)
+       container.add_item(footer) 
        if default_buttons:
           button = discord.ui.Button(label="Yes")
           button2 = discord.ui.Button(label="No")
-          container.add_item(section = discord.ui.Section(discord.ui.TextDisplay("Click the buttons aside based on your decision"), accessory = button, button2))
+          container.add_item(section = discord.ui.Section(discord.ui.TextDisplay("Click the buttons below based on your decision"), accessory = button)
+          container.add_item(button2)
           button.callback = self.bres
           button2.callback = self.b2res
        self.add_item(container)
