@@ -13,7 +13,7 @@ def blacklisted():
     return commands.check(predicate)
 
 async def _blacklistedusers(guild: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('database/session.db') as sdb:
        c = await sdb.execute("SELECT u FROM blacklist WHERE g = ?", (guild,))
        rs = await c.fetchall()
        if not rs:
@@ -21,24 +21,24 @@ async def _blacklistedusers(guild: int):
        return '\n'.join(str(r[0]) for r in rs)
 
 async def _checkblacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('database/session.db') as sdb:
        cursor = await sdb.execute("SELECT u FROM blacklist WHERE g = ? AND u = ?", (guild, user))
        row = await cursor.fetchone()
        return row is not None
 
 async def _blacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('database/session.db') as sdb:
        c = await sdb.execute("INSERT INTO blacklist (g, u) VALUES (?,?)", (guild, user))
        await sdb.commit()
 
 async def _unblacklist(guild: int, user: int):
-    async with aiosqlite.connect('session.db') as sdb:
+    async with aiosqlite.connect('database/session.db') as sdb:
        c = await sdb.execute("DELETE FROM blacklist WHERE g = ? AND u = ?", (guild, user))
        await sdb.commit()
 
 class Recover(discord.ui.LayoutView):
     def __init__(self, message: str, default_buttons: bool = True):
-       super().__init__()
+       super().__init__(timeout=60.0)
        container = discord.ui.container(discord.ui.TextDisplay(message), sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large, footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))))
        if default_buttons:
           button, button2 = discord.ui.Button(label="Yes"), discord.ui.Button(label="No")
