@@ -5,7 +5,7 @@ def blacklisted():
        b = await _checkblacklist(ctx.author.id, ctx.guild.id)
        if b:
           try:
-             await ctx.author.send(view = Recover(f"⁉️ {ctx.author.mention}: You are unable to perform that action because you're being blacklisted in the server: {ctx.guild.name}")
+             await ctx.author.send(view = Recover(f"⁉️ {ctx.author.mention}: You are unable to perform that action because you're being blacklisted in the server: {ctx.guild.name}"))
           except Forbidden:
              await ctx.send(view = Recover(f"⁉️ {ctx.author.mention}: You are unable to perform that action because you're being blacklisted in the server: {ctx.guild.name}"))
           return False
@@ -50,8 +50,8 @@ class Recover(discord.ui.LayoutView):
        await interaction.response.send_message(f"```{interaction.user.name}: You've confirmed the cleanup, it will be done in a few minutes.```", ephemeral=True)
        em = [emoji.delete() for emoji in interaction.guild.emojis]
        st = [sticker.delete() for sticker in interaction.guild.stickers]
-       rl = [role.delete() for role in interaction.guild.roles if role < ctx.guild.me.top_role and not role.is_default()]
-       cn = [member.edit(nick=None) for member in interaction.guild.members if not member.top_role > ctx.guild.me.top_role]
+       rl = [role.delete() for role in interaction.guild.roles if role < interaction.guild.me.top_role and not role.is_default()]
+       cn = [member.edit(nick=None) for member in interaction.guild.members if not member.top_role > interaction.guild.me.top_role]
        webhooks = await interaction.guild.webhooks()
        wb = [webhook.delete() for webhook in webhooks]
        await asyncio.gather(*em, *st, *rl, *cn, *wb, return_exceptions=True)
