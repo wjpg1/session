@@ -82,7 +82,7 @@ class Recover(discord.ui.LayoutView):
        super().__init__()
        container = discord.ui.Container(discord.ui.TextDisplay(message))
        sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
-       footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))
+       footer = discord.ui.TextDisplay(datetime.now().strftime('%B %d %Y %H:%M'))
        container.add_item(sep)
        container.add_item(footer) 
        if default_buttons:
@@ -161,9 +161,10 @@ async def delete_webhooks(ctx: commands.Context):
 @cleanup.command(name="purge", aliases=['pg','clear'])
 @commands.has_permissions(manage_messages=True)
 @commands.bot_has_permissions(manage_messages=True)
-@commands.cooldown(1,5, commands.BucketType.user)
+@commands.cooldown(1, 5, commands.BucketType.user)
 @blacklisted()
 async def purge(ctx: commands.Context, amount: int = 10):
+    amount = min(100)
     await ctx.channel.purge(limit=amount + 1)
 
 @cleanup.command(name="clearnicks", aliases=['cn'])
@@ -206,7 +207,7 @@ async def unblacklist(ctx: commands.Context, member: discord.Member, reason: str
 @bot.group(name="information", invoke_without_subcommands=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def information(ctx: commands.Context):
-    await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\nAll the informations about this bot: \nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix}, Do {prefix}help to know about all the available commands."))
+    await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\nBoosts: {ctx.guild.premium_subscription_count}\nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\n\nAll the informations about this bot: \n\nName: {bot.user.name}\nUsername: {bot.user}\nPrefix: {prefix}\n Do {prefix}help to know about all the available commands."))
 
 @information.command(name='serverinformation', aliases=['si'])
 @commands.cooldown(1, 2, commands.BucketType.user)
