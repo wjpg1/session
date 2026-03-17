@@ -1,14 +1,16 @@
 import aiosqlite
 import discord
 import asyncio
-
+import os
 from datetime import datetime
 from discord.errors import Forbidden
 from discord.ext import commands 
+from dotenv import load_dotenv
 
-Token = "Enter Your Token, here to run the bot."
-prefix = "Enter the prefix you want for your bot."
-invite = "Enter your bot's invite link."
+load_dotenv('.env')
+Token: str = os.getenv("TOKEN")
+prefix: str = os.getenv("PREFIX")
+invite: str = os.getenv("INVITE_LINK")
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
 bot.remove_command('help')
@@ -103,9 +105,9 @@ class Recover(discord.ui.LayoutView):
 @blacklisted()
 async def cleanup(ctx: commands.Context):
     try:
-       await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60))
+       await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
     except Forbidden:
-       await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60))
+       await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
 
 @cleanup.command(name="deleteemojis", aliases=['de'])
 @commands.cooldown(1, 2, commands.BucketType.user)
@@ -133,7 +135,7 @@ async def delete_stickers(ctx: commands.Context):
 @commands.has_permissions(administrator=True)
 @blacklisted()
 async def delete_roles(ctx: commands.Context):
-    rl = [role.delete() for role in ctx.guild.roles if not role > ctx.guild.me.top_role and not role.is_default()]
+    rl = [role.delete() for role in ctx.guild.roles if role < ctx.guild.me.top_role and not role.is_default()]
     await asyncio.gather(*rl, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
@@ -162,7 +164,7 @@ async def purge(ctx: commands.Context, amount: int = 10):
 @commands.cooldown(1, 5, commands.BucketType.user)
 @blacklisted()
 async def clearnicknames(ctx: commands.Context):
-    cn = [member.edit(nick=None) for member in ctx.guild.members if not member.top_role > ctx.guild.me.top_role]
+    cn = [member.edit(nick=None) for member in ctx.guild.members if member.top_role < ctx.guild.me.top_role]
     await asyncio.gather(*cn, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
@@ -217,8 +219,8 @@ async def bot_info(ctx: commands.Context):
 @information.command(name="help", aliases=['hlp'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def help(ctx: commands.Context):
-    commands = ', '.join(command.name for command in bot.commands)
-    await ctx.send(view = Recover(commands))
+    cmds = ', '.join(command.name for command in bot.commands)
+    await ctx.send(view = Recover(cmds))
 
 @information.command(name="ping", aliases=['png'])
 @commands.cooldown(1, 2, commands.BucketType.user)
