@@ -4,8 +4,8 @@ import aiosqlite
 
 from discord.ext import commands
 from asyncio import run 
-from .methods import Recover
-from .config import Prefix, Token
+from methods import Recover
+from config import Prefix, Token
 
 bot = commands.Bot(command_prefix=Prefix, intents=discord.Intents.all())
 bot.remove_command('help')
@@ -25,14 +25,16 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
        await ctx.send(view = Recover(f"{ctx.author.mention}: You missed an argument while using the command. Please check if the arguments given are correct."), delete_after=5)
-       if isinstance(error, commands.BadArgument):
-          await ctx.send(view = Recover(f"{ctx.author.mention}: You've provided arguments that invalid! Please check if the arguments given are correct."), delete_after=5)
-       if isinstance(error, commands.BotMissingPermissions):
-          await ctx.send(view = Recover(f"{ctx.author.mention}: I don't have the required permissions to execute that action. You can trust us, and consider giving administrator"), delete_after=5)
-       if isinstance(error, ocmmands.MissingPermissions):
-          await ctx.send(view = Recover(f"{ctx.author.mention}: You don't have the required permissions to make me perform that action!"), delete_after=5)
-       if isinstance(error, commands.CommandOnCooldown):
-          await ctx.send(view = Recover(f"{ctx.author.mention}: Slow Down! You've to wait {error.retry_after:.2f}(s) before running this, again."), delete_after=5)
+    elif isinstance(error, commands.BadArgument):
+       await ctx.send(view = Recover(f"{ctx.author.mention}: You've provided arguments that invalid! Please check if the arguments given are correct."), delete_after=5)
+    elif isinstance(error, commands.BotMissingPermissions):
+       await ctx.send(view = Recover(f"{ctx.author.mention}: I don't have the required permissions to execute that action. You can trust us, and consider giving administrator"), delete_after=5)
+    elif isinstance(error, ocmmands.MissingPermissions):
+       await ctx.send(view = Recover(f"{ctx.author.mention}: You don't have the required permissions to make me perform that action!"), delete_after=5)
+    elif isinstance(error, commands.CommandOnCooldown):
+       await ctx.send(view = Recover(f"{ctx.author.mention}: Slow Down! You've to wait {error.retry_after:.2f}(s) before running this, again."), delete_after=5)
+    else:
+        await ctx.send(view = Recover(f"{ctx.author.mention}: An unexpected error occurred, {error}"), delete_after=5)
 
 async def main():
     async with bot:
