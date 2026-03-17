@@ -212,7 +212,7 @@ async def information(ctx: commands.Context):
 @information.command(name='serverinformation', aliases=['si'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def serverinfo(ctx: commands.Context):
-    await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
+    await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\nB oosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
 
 @information.command(name="blacklisted", aliases=['bls', 'utrb'])
 @commands.cooldown(1,2, commands.BucketType.user)
@@ -223,12 +223,12 @@ async def usersthatareblacklisted(ctx: commands.Context):
 @information.command(name="botinfo", aliases=['info', 'bi'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def bot_info(ctx: commands.Context):
-    await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session]({invite})\nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix}, Do {prefix}help to know all the available commands."))
+    await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session]({invite})\nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix} \nDo {prefix}help to know about all the available commands."))
 
 @information.command(name="help", aliases=['hlp'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def help(ctx: commands.Context):
-    cmds = ', '.join(command.name for command in bot.commands)
+    cmds = ', '.join(sorted(command.name for command in bot.commands))
     await ctx.send(view = Recover(cmds))
 
 @information.command(name="ping", aliases=['png'])
