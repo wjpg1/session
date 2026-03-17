@@ -38,6 +38,8 @@ async def on_command_error(ctx, error):
        await ctx.send(view = Recover(f"{ctx.author.mention}: You don't have the required permissions to make me perform that action!"), delete_after=5)
     elif isinstance(error, commands.CommandOnCooldown):
        await ctx.send(view = Recover(f"{ctx.author.mention}: Slow Down! You've to wait {error.retry_after:.2f}(s) before running this, again."), delete_after=5)
+    else:
+        await ctx.send(view = Recover(f"{ctx.author.mention}: An error occurred, {error}")
 
 def blacklisted():
     async def predicate(ctx):
