@@ -37,23 +37,33 @@ async def _unblacklist(guild: int, user: int):
        await sdb.commit()
 
 class Recover(discord.ui.LayoutView):
-    def __init__(self, message: str, default_buttons: bool = True):
+    def __init__(self, message: str, default_buttons: bool = False):
        super().__init__(timeout=60.0)
-       container = discord.ui.container(discord.ui.TextDisplay(message), sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large, footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))))
+       container = discord.ui.Container()
+       msg = discord.ui.TextDisplay(message)
+       sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
+       footer = discord.ui.TextDisplay(datetime.now().strftime('%B %d %Y %H:%M'))
+       container.add_item(msg)
+       container.add_item(sep)
+       container.add_item(footer)
        if default_buttons:
-          button, button2 = discord.ui.Button(label="Yes"), discord.ui.Button(label="No")
-          container.add_item(section = discord.ui.Section(discord.ui.TextDisplay("Click the buttons aside based on your decision"), accessory = button, button2))
+          button = discord.ui.Button(label="Yes")
+          button2 = discord.ui.Button(label="No")
           button.callback = self.bres
           button2.callback = self.b2res
+          section = discord.ui.Section(discord.ui.TextDisplay("Click the button 'Yes', if you're sure."), accessory = button)
+          section2 = discord.ui.Section(discord.ui.TextDisplay("Click the button 'No', if you're unsure."), accessory = button2)
+          container.add_item(section)
+          container.add_item(section2)
        self.add_item(container)
     async def bres(self, interaction: discord.Interaction):
        await interaction.response.send_message(f"```{interaction.user.name}: You've confirmed the cleanup, it will be done in a few minutes.```", ephemeral=True)
        em = [emoji.delete() for emoji in interaction.guild.emojis]
        st = [sticker.delete() for sticker in interaction.guild.stickers]
        rl = [role.delete() for role in interaction.guild.roles if role < interaction.guild.me.top_role and not role.is_default()]
-       cn = [member.edit(nick=None) for member in interaction.guild.members if not member.top_role > interaction.guild.me.top_role]
+       cn = [member.edit(nick=None) for member in interaction.guild.members if member.top_role < interaction.guild.me.top_role]
        webhooks = await interaction.guild.webhooks()
        wb = [webhook.delete() for webhook in webhooks]
        await asyncio.gather(*em, *st, *rl, *cn, *wb, return_exceptions=True)
     async def b2res(self, interaction: discord.Interaction):
-       return await interaction.response.send_message(f"```{interaction.user.name}: You've successfully cancled the cleanup.```", ephemeral=True)
+       return await interaction.response.send_message(f"```{interaction.user.name}: You've successfully canclled the cleanup. It won't happen, now. Thanks for your patience.```", ephemeral=True)
