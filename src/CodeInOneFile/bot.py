@@ -80,19 +80,22 @@ async def _unblacklist(guild: int, user: int):
 class Recover(discord.ui.LayoutView):
     def __init__(self, message: str, default_buttons: bool = False):
        super().__init__()
-       container = discord.ui.Container(discord.ui.TextDisplay(message))
+       container = discord.ui.Container()
+       msg = discord.ui.TextDisplay(message)
        sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
        footer = discord.ui.TextDisplay(datetime.now().strftime('%B %d %Y %H:%M'))
+       container.add_item(msg)
        container.add_item(sep)
-       container.add_item(footer) 
+       container.add_item(footer)
        if default_buttons:
           button = discord.ui.Button(label="Yes")
           button2 = discord.ui.Button(label="No")
-          section  = discord.ui.Section(discord.ui.TextDisplay("Click the buttons below based on your decision"), accessory = button)
-          container.add_item(section)
-          container.add_item(button2)
-          button.callback = self.bres
+          button.callbavk = self.bres
           button2.callback = self.b2res
+          section = discord.ui.Section(discord.ui.TextDisplay("Click the button 'Yes', if you're sure."), accessory = button)
+          section2 = discord.ui.Section(discord.ui.TextDisplay("Click the button 'No', if you're unsure."), accessory = button2)
+          container.add_item(section)
+          container.add_item(section2)
        self.add_item(container)
     async def bres(self, interaction: discord.Interaction):
        await interaction.response.send_message(f"```{interaction.user.name}: You've confirmed the cleanup, it will be done in a few minutes.```", ephemeral=True)
@@ -177,7 +180,7 @@ async def clearnicknames(ctx: commands.Context):
     await asyncio.gather(*cn, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@bot.group(name="blacklisting", aliases=['bl'])
+@bot.group(name="blacklisting", invoke_without_subcommands=True)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
