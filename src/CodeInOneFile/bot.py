@@ -14,7 +14,6 @@ prefix: str = os.getenv("PREFIX")
 invite: str = os.getenv("INVITE_LINK")
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
-bot.remove_command('help')
 
 async def setupdatabase():
     async with aiosqlite.connect("session.db") as sdb:
@@ -40,7 +39,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CommandOnCooldown):
        await ctx.send(view = Recover(f"{ctx.author.mention}: Slow Down! You've to wait {error.retry_after:.2f}(s) before running this, again."), delete_after=5)
     else:
-        await ctx.send(view = Recover(f"{ctx.author.mention}: An unexpected error occurred, {error}")
+        await ctx.send(view = Recover(f"{ctx.author.mention}: An unexpected error occurred, {error}"), delete_after=5)
 
 def blacklisted():
     async def predicate(ctx):
@@ -70,7 +69,7 @@ async def _checkblacklist(guild: int, user: int):
 
 async def _blacklist(guild: int, user: int):
     async with aiosqlite.connect('session.db') as sdb:
-       c = await sdb.execute("INSERT INTO blacklist (g, u) VALUES (?,?)", (guild, user))
+       c = await sdb.execute("INSERT OR IGNORE INTO blacklist (g, u) VALUES (?,?)", (guild, user))
        await sdb.commit()
 
 async def _unblacklist(guild: int, user: int):
@@ -79,9 +78,9 @@ async def _unblacklist(guild: int, user: int):
        await sdb.commit()
 
 class Recover(discord.ui.LayoutView):
-    def __init__(self, message: str, default_buttons: bool = True):
+    def __init__(self, message: str, default_buttons: bool = False):
        super().__init__()
-       container = discord.ui.Container(discord.ui.TextDisplay(message)
+       container = discord.ui.Container(discord.ui.TextDisplay(message))
        sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
        footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))
        container.add_item(sep)
@@ -89,7 +88,8 @@ class Recover(discord.ui.LayoutView):
        if default_buttons:
           button = discord.ui.Button(label="Yes")
           button2 = discord.ui.Button(label="No")
-          container.add_item(section = discord.ui.Section(discord.ui.TextDisplay("Click the buttons below based on your decision"), accessory = button)
+          section  = discord.ui.Section(discord.ui.TextDisplay("Click the buttons below based on your decision"), accessory = button)
+          container.add_item(section)
           container.add_item(button2)
           button.callback = self.bres
           button2.callback = self.b2res
@@ -106,7 +106,7 @@ class Recover(discord.ui.LayoutView):
     async def b2res(self, interaction: discord.Interaction):
        return await interaction.response.send_message(f"```{interaction.user.name}: You've successfully cancled the cleanup.```", ephemeral=True)
 
-@commands.group(name="cleanup", invoke_without_subcommands=True)
+@bot.group(name="cleanup", invoke_without_subcommands=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
@@ -176,7 +176,7 @@ async def clearnicknames(ctx: commands.Context):
     await asyncio.gather(*cn, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@commands.group(name="blacklisting", aliases=['bl'])
+@bot.group(name="blacklisting", aliases=['bl'])
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
@@ -203,7 +203,7 @@ async def unblacklist(ctx: commands.Context, member: discord.Member, reason: str
     else:
        await ctx.send(view = Recover(f"{ctx.author.mention}: Idiot! {member.mention} is not blacklisted in this server."))
 
-@commands.group(name="information", invoke_without_subcommands=True)
+@bot.group(name="information", invoke_without_subcommands=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def information(ctx: commands.Context):
     await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\nAll the informations about this bot: \nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix}, Do {prefix}help to know about all the available commands."))
