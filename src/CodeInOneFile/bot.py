@@ -79,7 +79,7 @@ async def _unblacklist(guild: int, user: int):
 
 class Recover(discord.ui.LayoutView):
     def __init__(self, message: str, default_buttons: bool = False):
-       super().__init__()
+       super().__init__(timeout=60.0)
        container = discord.ui.Container()
        msg = discord.ui.TextDisplay(message)
        sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large)
@@ -90,7 +90,7 @@ class Recover(discord.ui.LayoutView):
        if default_buttons:
           button = discord.ui.Button(label="Yes")
           button2 = discord.ui.Button(label="No")
-          button.callbavk = self.bres
+          button.callback = self.bres
           button2.callback = self.b2res
           section = discord.ui.Section(discord.ui.TextDisplay("Click the button 'Yes', if you're sure."), accessory = button)
           section2 = discord.ui.Section(discord.ui.TextDisplay("Click the button 'No', if you're unsure."), accessory = button2)
@@ -167,7 +167,7 @@ async def delete_webhooks(ctx: commands.Context):
 @commands.cooldown(1, 5, commands.BucketType.user)
 @blacklisted()
 async def purge(ctx: commands.Context, amount: int = 10):
-    amount = min(100)
+    amount = min(amount, 100)
     await ctx.channel.purge(limit=amount + 1)
 
 @cleanup.command(name="clearnicks", aliases=['cn'])
@@ -180,7 +180,7 @@ async def clearnicknames(ctx: commands.Context):
     await asyncio.gather(*cn, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@bot.group(name="blacklisting", invoke_without_subcommands=True)
+@bot.group(name="blacklist", invoke_without_subcommands=True)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
