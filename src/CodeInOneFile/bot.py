@@ -99,12 +99,12 @@ class Recover(discord.ui.LayoutView):
        em = [emoji.delete() for emoji in interaction.guild.emojis]
        st = [sticker.delete() for sticker in interaction.guild.stickers]
        rl = [role.delete() for role in interaction.guild.roles if role < interaction.guild.me.top_role and not role.is_default()]
-       cn = [member.edit(nick=None) for member in interaction.guild.members if not member.top_role > interaction.guild.me.top_role]
+       cn = [member.edit(nick=None) for member in interaction.guild.members if member.top_role < interaction.guild.me.top_role]
        webhooks = await interaction.guild.webhooks()
        wb = [webhook.delete() for webhook in webhooks]
        await asyncio.gather(*em, *st, *rl, *cn, *wb, return_exceptions=True)
     async def b2res(self, interaction: discord.Interaction):
-       return await interaction.response.send_message(f"```{interaction.user.name}: You've successfully cancled the cleanup.```", ephemeral=True)
+       return await interaction.response.send_message(f"```{interaction.user.name}: You've successfully canclled the cleanup. It won't happen, now. Thanks for your patience.```", ephemeral=True)
 
 @bot.group(name="cleanup", invoke_without_subcommands=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
