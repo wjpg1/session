@@ -39,7 +39,7 @@ async def on_command_error(ctx, error):
 
 def blacklisted():
     async def predicate(ctx):
-       b = await _checkblacklist(ctx.author.id, ctx.guild.id)
+       b = await _checkblacklist(ctx.guild.id, ctx.author.id)
        if b:
           try:
              await ctx.author.send(view = Recover(f"⁉️ {ctx.author.mention}: You are unable to perform that action because you're being blacklisted in the server: {ctx.guild.name}"))
@@ -76,7 +76,7 @@ async def _unblacklist(guild: int, user: int):
 class Recover(discord.ui.LayoutView):
     def __init__(self, message: str, default_buttons: bool = True):
        super().__init__()
-       container = discord.ui.container(discord.ui.TextDisplay(message), sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large, footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))))
+       container = discord.ui.Container(discord.ui.TextDisplay(message), sep = discord.ui.Separator(spacing = discord.SeparatorSpacing.large, footer = discord.ui.TextDisplay(datetime.now().strftime('%B %-d %Y %H:%M'))))
        if default_buttons:
           button = discord.ui.Button(label="Yes")
           button2 = discord.ui.Button(label="No")
@@ -103,9 +103,9 @@ class Recover(discord.ui.LayoutView):
 @blacklisted()
 async def cleanup(ctx: commands.Context):
     try:
-       await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
+       await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60))
     except Forbidden:
-       await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
+       await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60))
 
 @cleanup.command(name="deleteemojis", aliases=['de'])
 @commands.cooldown(1, 2, commands.BucketType.user)
@@ -133,7 +133,7 @@ async def delete_stickers(ctx: commands.Context):
 @commands.has_permissions(administrator=True)
 @blacklisted()
 async def delete_roles(ctx: commands.Context):
-    rl = [role.delete() for role in ctx.guild.roles if not role > ctx.guild.me.top_role and role.is_default()]
+    rl = [role.delete() for role in ctx.guild.roles if not role > ctx.guild.me.top_role and not role.is_default()]
     await asyncio.gather(*rl, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
@@ -159,7 +159,7 @@ async def purge(ctx: commands.Context, amount: int = 10):
 @cleanup.command(name="clearnicks", aliases=['cn'])
 @commands.has_permissions(manage_nicknames=True)
 @commands.bot_has_permissions(manage_nicknames=True)
-@commands.cooldown(1,5, commands.BucketType.user)
+@commands.cooldown(1, 5, commands.BucketType.user)
 @blacklisted()
 async def clearnicknames(ctx: commands.Context):
     cn = [member.edit(nick=None) for member in ctx.guild.members if not member.top_role > ctx.guild.me.top_role]
@@ -169,21 +169,21 @@ async def clearnicknames(ctx: commands.Context):
 @commands.group(name="blacklisting", aliases=['bl'])
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
-@commands.cooldown(1,2, commands.BucketType.user)
+@commands.cooldown(1, 2, commands.BucketType.user)
 @blacklisted()
-async def blacklist(ctx: commands.Context, member: discord.Member, reason: str = "No reason was specified."):
+async def blacklist(ctx: commands.Context, member: discord.Member, reason: str = "No reason is specified."):
     b = await _checkblacklist(ctx.guild.id, member.id)
     if member is ctx.guild.owner or member.top_role >= ctx.author.top_role:
        return await ctx.send(view = Recover(f"{ctx.author.mention}: Idiot! You cannot blacklist the server's owner or someone who's higher in position than you."))
     if b:
        return await ctx.send(view = Recover(f"{ctx.author.mention}: Idiot, {member.mention} is already blacklisted!"))
     await _blacklist(ctx.guild.id, member.id)
-    await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully blacklisted in {ctx.guild.name}"))
+    await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully blacklisted in {ctx.guild.name}\nModerator: {ctx.author.mention}\nReason: {reason}"))
 
 @blacklist.command(name="unblacklist", aliases=['remb','unblack'])
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
-@commands.cooldown(1,2, commands.BucketType.user)
+@commands.cooldown(1, 2, commands.BucketType.user)
 @blacklisted()
 async def unblacklist(ctx: commands.Context, member: discord.Member, reason: str = "No reason is specified."):
     b = await _checkblacklist(ctx.guild.id, member.id)
@@ -203,15 +203,15 @@ async def information(ctx: commands.Context):
 async def serverinfo(ctx: commands.Context):
     await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
 
-@information.command(name="blacklisted", aliases=['bls'])
+@information.command(name="blacklisted", aliases=['bls', 'utrb'])
 @commands.cooldown(1,2, commands.BucketType.user)
-async def blacklisted(ctx: commands.Context):
+async def usersthatareblacklisted(ctx: commands.Context):
     information = await _blacklistedusers(ctx.guild.id)
     await ctx.send(view = Recover(information))
 
 @information.command(name="botinfo", aliases=['info', 'bi'])
 @commands.cooldown(1, 2, commands.BucketType.user)
-async def bot_info(self, ctx: commands.Context):
+async def bot_info(ctx: commands.Context):
     await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session]({invite})\nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix}, Do {prefix}help to know all the available commands."))
 
 @information.command(name="help", aliases=['hlp'])
