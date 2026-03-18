@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv('.env')
 Token: str = os.getenv("TOKEN")
-prefix: str = os.getenv("PREFIX")
+prefix: str = os.getenv("PREFIX") 
 invite: str = os.getenv("INVITE_LINK")
 
 bot = commands.Bot(command_prefix=prefix, intents=discord.Intents.all())
@@ -224,7 +224,7 @@ async def usersthatareblacklisted(ctx: commands.Context):
     information = await _blacklistedusers(ctx.guild.id)
     await ctx.send(view = Recover(information))
 
-@bot.command(name="botinfo", aliases=['info', 'bi'])
+@bot.command(name="botinfo", aliases=['botinformation', 'bi'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 async def bot_info(ctx: commands.Context):
     await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session]({invite})\nName: {bot.user.name}, Username: {bot.user}\nPrefix: {prefix} \nDo {prefix}help to know about all the available commands."))
