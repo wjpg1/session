@@ -1,8 +1,9 @@
 
 import discord
 import asyncio
+
 from datetime import datetime
-from .methods import Recover, _unblacklist, _blacklist, _blacklistedusers, blacklisted, _checkblacklist
+from methods import Recover, _unblacklist, _blacklist, _blacklistedusers, blacklisted, _checkblacklist
 from discord.ext import commands
 from discord.errors import Forbidden
 from config import Prefix
@@ -23,7 +24,7 @@ class Session(commands.Cog):
           await ctx.author.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
        except Forbidden:
           await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
-    @commands.command(name="deletemojis", aliases=['de'])
+    @commands.command(name="deletemojis", aliases=['de', 'delemo'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -32,7 +33,7 @@ class Session(commands.Cog):
           em = [emoji.delete() for emoji in ctx.guild.emojis]
           await asyncio.gather(*em, return_exceptions=True)
           await ctx.message.add_reaction("👍")
-    @commands.command(name="deletestickers", aliases=['ds'])
+    @commands.command(name="deletestickers", aliases=['ds', 'delroles'])
     @commands.cooldown(1, 2, commands.BucketType.user)
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
@@ -68,7 +69,7 @@ class Session(commands.Cog):
     async def purge(self, ctx: commands.Context, amount: int = 10):
         amount = min(amount, 100)
         await ctx.channel.purge(limit=amount + 1)
-    @commands.command(name="clearnicks", aliases=['cn'])
+    @commands.command(name="clearnicks", aliases=['cn', 'clrnicks'])
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     @commands.cooldown(1,5, commands.BucketType.user)
@@ -77,7 +78,7 @@ class Session(commands.Cog):
        cn = [member.edit(nick=None) for member in ctx.guild.members if member.top_role < ctx.guild.me.top_role]
        await asyncio.gather(*cn, return_exceptions=True)
        await ctx.message.add_reaction("👍")
-    @commands.command(ame="blacklist", aliases=['bl'])
+    @commands.command(ame="blacklist", aliases=['bl', 'addblacklist'])
     @commands.bot_has_permissions(administrator=True)
     @commands.has_permissions(administrator=True)
     @commands.cooldown(1,2, commands.BucketType.user)
@@ -105,11 +106,11 @@ class Session(commands.Cog):
     @commands.command(name="information", aliases=['info'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def information(self, ctx: commands.Context):
-       await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\nAll the informations about this bot: \nName: {self.bot.user.name}, Username: {self.bot.user}\nPrefix: {prefix}, Do {prefix}help to know about all the available commands."))
+       await ctx.send(view = Recover(f"Information: \nServer-information: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\nBoosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}\n\nAll the informations about this bot: \n\nName: {self.bot.user.name}\nUsername: {self.bot.user}\nPrefix: {prefix} \nDo {prefix}help to know about all the available commands."))
     @commands.command(name='serverinformation', aliases=['si', 'serverinfo'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def serverinformation(self, ctx: commands.Context):
-       await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\n boosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
+       await ctx.send(view = Recover(f"{ctx.guild.name}\nOverview: \nName: {ctx.guild.name}\nOwner: {ctx.guild.owner.mention}\nBoosts: {ctx.guild.premium_subscription_count}\nOther: \nRoles: {len(ctx.guild.roles)}\nMembers: {ctx.guild.member_count}\nChannels: Text - {len(ctx.guild.text_channels)} - Voice - {len(ctx.guild.voice_channels)}"))
     @commands.command(name="blacklisted", aliases=['bls', 'utrb'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def userthatarebacklisted(self, ctx: commands.Context):
@@ -117,13 +118,13 @@ class Session(commands.Cog):
        await ctx.send(view = Recover(information))
     @commands.command(name="botinfo", aliases=['info', 'bi'])
     async def bot_info(self, ctx: commands.Context):
-       await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session](invitelink)\nName: {self.bot.user.name}, Username: {self.bot.user}\nPrefix: {prefix}, Do {prefix}help to know all the available commands."))
-    @commands.command(name="help", aliases=['hlp'])
+       await ctx.send(view = Recover(f"All the informations about this bot: \nInvite-link: [session]({invitelink})\nName: {self.bot.user.name}\nUsername: {self.bot.user}\nPrefix: {prefix}, Do {prefix}help to know all the available commands."))
+    @commands.command(name="help", aliases=['hlp', 'cmds'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def help(self, ctx: commands.Context):
        cmds = ', '.join(command.name for command in self.bot.commands)
        await ctx.send(view = Recover(cmds))
-    @commands.command(name="ping", aliases=['png'])
+    @commands.command(name="ping", aliases=['png', 'latency'])
     @commands.cooldown(1,2, commands.BucketType.user)
     async def ping(self, ctx: commands.Context):
        await ctx.send(view = Recover(f"{round(self.bot.latency * 1000)}ms"))
