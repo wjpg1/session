@@ -121,7 +121,7 @@ async def cleanup(ctx: commands.Context):
     except Forbidden:
        await ctx.send(view = Recover(f"🤔 - {ctx.author.mention}: Are you sure that you want to clean {ctx.guild.name}.", True), delete_after=24 * 60)
 
-@bot.command(name="deleteemojis", aliases=['de'])
+@bot.command(name="deleteemojis", aliases=['de', 'delemo'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
@@ -131,7 +131,7 @@ async def delete_emojis(ctx: commands.Context):
     await asyncio.gather(*em, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@bot.command(name="deletestickers", aliases=['ds'])
+@bot.command(name="deletestickers", aliases=['ds', 'delsti'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
@@ -141,7 +141,7 @@ async def delete_stickers(ctx: commands.Context):
     await asyncio.gather(*st, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@bot.command(name="deleteroles", aliases=['dr'])
+@bot.command(name="deleteroles", aliases=['dr', 'delroles'])
 @commands.cooldown(1, 2, commands.BucketType.user)
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
