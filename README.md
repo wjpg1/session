@@ -1,4 +1,6 @@
 # session
+ ## ``Project``:
+ ``` Uses aiosqlite, os, discord.py, etc | Is Written in Python. | Author: Wjpg1 | Github: https://github.com/wjpg1 | | Email: contactwjpg@gmail.com | Licence: This project is licensed under the MIT License. | If you like this project, consider giving it a star. ```
 
 # What is This?
 
