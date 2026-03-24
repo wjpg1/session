@@ -181,7 +181,7 @@ async def clearnicknames(ctx: commands.Context):
     await asyncio.gather(*cn, return_exceptions=True)
     await ctx.message.add_reaction("👍")
 
-@bot.command(name="blacklist", aliases=['blck'])
+@bot.command(name="blacklist", aliases=['blk', 'addblacklist'])
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
@@ -195,7 +195,7 @@ async def blacklist(ctx: commands.Context, member: discord.Member, reason: str =
     await _blacklist(ctx.guild.id, member.id)
     await ctx.send(view = Recover(f"{ctx.author.mention}: {member.mention} has been successfully blacklisted in {ctx.guild.name}\nModerator: {ctx.author.mention}\nReason: {reason}"))
 
-@bot.command(name="unblacklist", aliases=['remb','unblack'])
+@bot.command(name="unblacklist", aliases=['remblacklist','unblk'])
 @commands.bot_has_permissions(administrator=True)
 @commands.has_permissions(administrator=True)
 @commands.cooldown(1, 2, commands.BucketType.user)
