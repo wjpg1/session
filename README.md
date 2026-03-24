@@ -48,11 +48,13 @@ You can run this easily in other code-editors like: pydroid3 by copy-pasting the
 
 `` {your_prefix} or !help - aliases: hlp - shows the commands's help menu``
 
-`` {your_prefix} or !serverinfo - aliases: serverinformation, si - shows some of the informations available of a server. ``
+`` {your_prefix} or !serverinfo - aliases: serverinformation, si - returns some of the informations available of a server. ``
 
-`` {your_prefix} or !botinfo - aliases: botinformation, bi - shows all the important informations of the bot. ``
+`` {your_prefix} or !botinfo - aliases: botinformation, bi - returnz ll the important informations of the bot. ``
 
-`` {your_prefix} or !ping - aliases: png - shows the latency of the bot. ``
+`` {your_prefix} or !ping - aliases: png - returns the latency of the bot. ``
+
+`` {your_prefix} or !usersthatareblacklisted - aliases: blacklisted, utrb - returns a list of people that are blacklisted in your server. ``
 
 ## ``These are all of the available commands, and some of their informations, like: aliases, and what they do. `` 
 
