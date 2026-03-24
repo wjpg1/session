@@ -19,9 +19,8 @@ You can run this easily in other code-editors like: pydroid3 by copy-pasting the
 
 # ``Session's available commands`` :
  ## ``Cleanup`` :
-`` {your_prefix} or !help - aliases: hlp - shows the commands's help menu``
 
-`` {your_prefix} or !cleanup - aliases: wipe, cln - deletes the server's emojis, stickers, webhooks, and roles. ``
+`` {your_prefix} or !cleanup - aliases: wipe, clean, cln - deletes the server's emojis, stickers, webhooks, and roles. ``
 
 `` {your_prefix} or !deletewebhooks - aliases: dw, delweb - deletes the server's webhooks. ``
 
@@ -31,4 +30,29 @@ You can run this easily in other code-editors like: pydroid3 by copy-pasting the
 
 `` {your_prefix} or !deletestickers - aliases: ds, delsti - deletes the server's stickers. ``
 
-`` {your_prefix} or !delete
+`` {your_prefix} or !purge - aliases: pg, clear - purges the messages sent in a channel. ``
+
+`` {your_prefix} or !clearnicks - aliases: cn - clears the nicknames of all the members of the server. ``
+
+ ## ``Blacklist``:
+
+`` {your_prefix} or !blacklist - aliases: blk, addblacklist - blacklist whoever you want in your server, you must have administrator permissions. ``
+
+`` {your_prefix} or !unblacklist - aliases: unblk, remblacklist - unblacklist whoever you want in your server, you must have administrator permissions to do it, too ``
+
+ ## ``Informations``:
+
+`` {your_prefix} or !information - aliases: info - this shows all the important informations of the server, and of the bot. ``
+
+`` {your_prefix} or !help - aliases: hlp - shows the commands's help menu``
+
+`` {your_prefix} or !serverinfo - aliases: serverinformation, si - shows some of the informations available of a server. ``
+
+`` {your_prefix} or !botinfo - aliases: botinformation, bi - shows all the important informations of the bot. ``
+
+`` {your_prefix} or !ping - aliases: png - shows the latency of the bot. ``
+
+## ``These are all of the available commands, and some of their informations, like: aliases, and what they do. `` 
+
+# Other:
+`` We don't support nuking servers, deleting roles, emojis, stickers, and webhooks for malicious purposes. This is only for educational purposes, and help clean a server. This code might get you and your bot banned. `` 
